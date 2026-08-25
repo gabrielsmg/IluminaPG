@@ -1,13 +1,541 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Registrar ocorrência</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
-<header class="topbar"><div class="topbar-inner"><div class="brand"><div class="brand-mark">💡</div><div><div class="brand-title">IluminaPG</div><div class="brand-subtitle">Registrar ocorrência</div></div></div><nav class="nav"><a href="index.html">← Início</a><a href="consulta.html">Consultar protocolo</a></nav></div></header>
-<main class="wrap"><form id="formOcorrencia">
-<section class="card"><div class="card-title"><span>📍</span><h2>Local da ocorrência</h2></div><div class="grid-2"><div class="field"><label>Bairro</label><input id="bairro" required></div><div class="field"><label>Logradouro</label><input id="logradouro" required></div><div class="field"><label>Número / referência</label><input id="numero" required></div><div class="field"><label>CEP (opcional)</label><input id="cep"></div></div></section>
-<section class="card"><div class="card-title"><span>💡</span><h2>Problema encontrado</h2></div><div class="problem-grid">
-<label class="problem"><input type="radio" name="tipo" value="Luminária apagada" required>🌙 Luminária apagada</label>
-<label class="problem"><input type="radio" name="tipo" value="Luminária acesa durante o dia">☀️ Luminária acesa durante o dia</label>
-<label class="problem"><input type="radio" name="tipo" value="Luminária piscando">✨ Luminária piscando</label>
-<label class="problem"><input type="radio" name="tipo" value="Poste sem luminária">🚧 Poste sem luminária</label></div>
-<div class="field" style="margin-top:16px"><label>Observações</label><textarea id="descricao"></textarea></div></section>
-<section class="card"><div class="card-title"><span>👤</span><h2>Dados do solicitante</h2></div><div class="grid-2"><div class="field"><label>Nome completo</label><input id="nome" required></div><div class="field"><label>Telefone</label><input id="telefone" required></div><div class="field"><label>E-mail</label><input id="email" type="email" required></div></div></section>
-<div id="mensagem" class="alert"></div><button class="btn btn-primary">Enviar e gerar protocolo</button></form></main>
-<script src="supabase-config.js"></script><script src="cidadao.js"></script></body></html>
+<!doctype html>
+
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        Registrar ocorrência - IluminaPG
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+</head>
+
+
+<body>
+
+
+
+<header class="topbar">
+
+
+    <div class="topbar-inner">
+
+
+        <div class="brand">
+
+
+            <div class="brand-mark">
+                💡
+            </div>
+
+
+            <div>
+
+                <div class="brand-title">
+                    IluminaPG
+                </div>
+
+                <div class="brand-subtitle">
+                    Registrar ocorrência
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <nav class="nav">
+
+
+            <a href="index.html">
+                ← Início
+            </a>
+
+
+            <a href="consulta.html">
+                Consultar protocolo
+            </a>
+
+
+        </nav>
+
+
+    </div>
+
+
+</header>
+
+
+
+<main class="wrap">
+
+
+<form id="formOcorrencia">
+
+
+
+    <!-- =========================================
+         LOCAL
+    ========================================== -->
+
+    <section class="card">
+
+
+        <div class="card-title">
+
+            <span>
+                📍
+            </span>
+
+            <h2>
+                Local da ocorrência
+            </h2>
+
+        </div>
+
+
+
+        <div class="grid-2">
+
+
+            <div class="field">
+
+                <label for="bairro">
+                    Bairro
+                </label>
+
+
+                <input
+                    id="bairro"
+                    type="text"
+                    placeholder="Ex.: Boqueirão"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="field">
+
+                <label for="logradouro">
+                    Logradouro
+                </label>
+
+
+                <input
+                    id="logradouro"
+                    type="text"
+                    placeholder="Rua, avenida ou praça"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="field">
+
+                <label for="numero">
+                    Número / referência
+                </label>
+
+
+                <input
+                    id="numero"
+                    type="text"
+                    placeholder="Ex.: 794 ou em frente ao mercado"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="field">
+
+                <label for="cep">
+                    CEP
+                    <span class="optional">
+                        (opcional)
+                    </span>
+                </label>
+
+
+                <input
+                    id="cep"
+                    type="text"
+                    placeholder="00000-000"
+                >
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =========================================
+         PROBLEMA
+    ========================================== -->
+
+    <section class="card">
+
+
+        <div class="card-title">
+
+            <span>
+                💡
+            </span>
+
+            <h2>
+                Problema encontrado
+            </h2>
+
+        </div>
+
+
+        <p class="section-text">
+            Selecione a situação encontrada no ponto de iluminação pública.
+        </p>
+
+
+
+        <div class="problem-grid">
+
+
+            <!-- LUMINÁRIA APAGADA -->
+
+            <label class="problem">
+
+
+                <input
+                    type="radio"
+                    name="tipo"
+                    value="Luminária apagada"
+                    required
+                >
+
+
+                <div class="problem-icon">
+
+                    <img
+                        src="img/1-lampada-apagada-a-noite.png"
+                        alt="Luminária apagada durante a noite"
+                    >
+
+                </div>
+
+
+                <div class="problem-content">
+
+                    <strong>
+                        Luminária apagada
+                    </strong>
+
+                    <small>
+                        Não acende durante o período noturno.
+                    </small>
+
+                </div>
+
+
+            </label>
+
+
+
+            <!-- ACESA DURANTE O DIA -->
+
+            <label class="problem">
+
+
+                <input
+                    type="radio"
+                    name="tipo"
+                    value="Luminária acesa durante o dia"
+                >
+
+
+                <div class="problem-icon">
+
+                    <img
+                        src="img/1-lampada-acesa-durante-o-dia.png"
+                        alt="Luminária acesa durante o dia"
+                    >
+
+                </div>
+
+
+                <div class="problem-content">
+
+                    <strong>
+                        Luminária acesa durante o dia
+                    </strong>
+
+                    <small>
+                        Permanece ligada durante o período diurno.
+                    </small>
+
+                </div>
+
+
+            </label>
+
+
+
+            <!-- PISCANDO -->
+
+            <label class="problem">
+
+
+                <input
+                    type="radio"
+                    name="tipo"
+                    value="Luminária piscando"
+                >
+
+
+                <div class="problem-icon">
+
+                    <img
+                        src="img/lampada-apaga-e-acende.png"
+                        alt="Luminária piscando"
+                    >
+
+                </div>
+
+
+                <div class="problem-content">
+
+                    <strong>
+                        Luminária piscando
+                    </strong>
+
+                    <small>
+                        Acende e apaga repetidamente.
+                    </small>
+
+                </div>
+
+
+            </label>
+
+
+
+            <!-- POSTE SEM LUMINÁRIA -->
+
+            <label class="problem">
+
+
+                <input
+                    type="radio"
+                    name="tipo"
+                    value="Poste sem luminária"
+                >
+
+
+                <div class="problem-icon">
+
+                    <img
+                        src="img/poste-sem-luminaria.png"
+                        alt="Poste sem luminária"
+                    >
+
+                </div>
+
+
+                <div class="problem-content">
+
+                    <strong>
+                        Poste sem luminária
+                    </strong>
+
+                    <small>
+                        Existe poste no local sem luminária instalada.
+                    </small>
+
+                </div>
+
+
+            </label>
+
+
+        </div>
+
+
+
+        <div class="field observation-field">
+
+            <label for="descricao">
+                Observações
+            </label>
+
+
+            <textarea
+                id="descricao"
+                placeholder="Informe detalhes que facilitem a localização e identificação do problema."
+            ></textarea>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =========================================
+         SOLICITANTE
+    ========================================== -->
+
+    <section class="card">
+
+
+        <div class="card-title">
+
+            <span>
+                👤
+            </span>
+
+            <h2>
+                Dados do solicitante
+            </h2>
+
+        </div>
+
+
+
+        <div class="grid-2">
+
+
+            <div class="field">
+
+                <label for="nome">
+                    Nome completo
+                </label>
+
+
+                <input
+                    id="nome"
+                    type="text"
+                    autocomplete="name"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="field">
+
+                <label for="telefone">
+                    Telefone
+                </label>
+
+
+                <input
+                    id="telefone"
+                    type="tel"
+                    autocomplete="tel"
+                    placeholder="(13) 99999-9999"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="field">
+
+                <label for="email">
+                    E-mail
+                </label>
+
+
+                <input
+                    id="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+        </div>
+
+
+        <p class="hint">
+
+            Os dados serão utilizados apenas para identificação
+            e contato relacionado à solicitação.
+
+        </p>
+
+
+    </section>
+
+
+
+    <div
+        id="mensagem"
+        class="alert"
+    ></div>
+
+
+
+    <button
+        type="submit"
+        class="btn btn-primary send-button"
+    >
+
+        Enviar e gerar protocolo
+
+    </button>
+
+
+</form>
+
+
+</main>
+
+
+
+<footer class="footer">
+
+    IluminaPG • Iluminação pública
+
+</footer>
+
+
+
+<script src="supabase-config.js"></script>
+
+<script src="cidadao.js"></script>
+
+
+</body>
+
+</html>
