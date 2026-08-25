@@ -1,7 +1,662 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gestão</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
-<header class="topbar"><div class="topbar-inner"><div class="brand"><div class="brand-mark">🏛️</div><div><div class="brand-title">IluminaPG Gestão</div><div class="brand-subtitle">Painel administrativo</div></div></div><nav class="nav"><a href="index.html">Área do cidadão</a><button id="btnSair" style="display:none">Sair</button></nav></div></header>
-<main class="wrap"><section id="loginCard" class="card"><h2>Acesso administrativo</h2><form id="formLogin"><div class="field"><label>E-mail</label><input id="loginEmail" type="email" required></div><div class="field"><label>Senha</label><input id="loginSenha" type="password" required></div><div id="loginMsg" class="alert"></div><button class="btn btn-dark">Entrar</button></form></section>
-<section id="painel" style="display:none"><div class="stats"><div class="stat"><div class="n" id="a">0</div><div class="t">Abertos</div></div><div class="stat"><div class="n" id="b">0</div><div class="t">Em análise</div></div><div class="stat"><div class="n" id="c">0</div><div class="t">Encaminhados</div></div><div class="stat"><div class="n" id="d">0</div><div class="t">Concluídos</div></div></div>
-<section class="card"><div class="card-title"><span>📋</span><h2>Chamados recebidos</h2></div><div class="toolbar"><input id="filtro" placeholder="Pesquisar protocolo, bairro ou logradouro"><select id="filtroStatus"><option value="">Todos os status</option><option value="aberto">Aberto</option><option value="em_analise">Em análise</option><option value="encaminhado">Encaminhado</option><option value="concluido">Concluído</option></select><button id="btnAtualizar" class="btn btn-light">Atualizar</button></div><div class="tablewrap"><table class="table"><thead><tr><th>Protocolo</th><th>Bairro</th><th>Ocorrência</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabela"></tbody></table></div></section>
-<section id="detalhes" class="card" style="display:none"><h2>Atendimento</h2><div id="dados"></div><div class="grid-2"><div class="field"><label>Status</label><select id="status"><option value="aberto">Aberto</option><option value="em_analise">Em análise</option><option value="encaminhado">Encaminhado</option><option value="concluido">Concluído</option></select></div><div class="field"><label>Equipe responsável</label><input id="equipe"></div></div><div class="field"><label>Retorno da Prefeitura</label><textarea id="retorno"></textarea></div><button id="salvar" class="btn btn-success">Salvar atendimento</button></section></section></main>
-<script src="supabase-config.js"></script><script src="gestao.js"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        Gestão - IluminaPG
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+</head>
+
+
+<body>
+
+<header class="topbar">
+
+    <div class="topbar-inner">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                🏛️
+            </div>
+
+            <div>
+
+                <div class="brand-title">
+                    IluminaPG Gestão
+                </div>
+
+                <div class="brand-subtitle">
+                    Painel administrativo de iluminação pública
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <nav class="nav">
+
+            <a href="index.html">
+                Área do cidadão
+            </a>
+
+            <button
+                id="btnSair"
+                style="display: none;"
+            >
+                Sair
+            </button>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main class="wrap">
+
+
+    <!-- ===================================== -->
+    <!-- LOGIN ADMINISTRATIVO -->
+    <!-- ===================================== -->
+
+    <section
+        id="loginCard"
+        class="card"
+        style="max-width: 480px; margin: 50px auto;"
+    >
+
+        <div class="card-title">
+
+            <span>
+                🔐
+            </span>
+
+            <h2>
+                Acesso administrativo
+            </h2>
+
+        </div>
+
+
+        <form id="formLogin">
+
+
+            <div class="field">
+
+                <label for="loginEmail">
+                    E-mail
+                </label>
+
+                <input
+                    id="loginEmail"
+                    type="email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="loginSenha">
+                    Senha
+                </label>
+
+                <input
+                    id="loginSenha"
+                    type="password"
+                    required
+                >
+
+            </div>
+
+
+            <div
+                id="loginMsg"
+                class="alert"
+            ></div>
+
+
+            <button
+                type="submit"
+                class="btn btn-dark"
+            >
+                Entrar
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ===================================== -->
+    <!-- PAINEL ADMINISTRATIVO -->
+    <!-- ===================================== -->
+
+    <section
+        id="painel"
+        style="display: none;"
+    >
+
+
+        <div class="admin-head">
+
+            <div>
+
+                <h1>
+                    Painel de chamados
+                </h1>
+
+                <p>
+                    Acompanhe, encaminhe e finalize as ocorrências recebidas.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===================================== -->
+        <!-- INDICADORES -->
+        <!-- ===================================== -->
+
+        <div class="stats">
+
+
+            <div class="stat">
+
+                <div
+                    class="n"
+                    id="a"
+                >
+                    0
+                </div>
+
+                <div class="t">
+                    Abertos
+                </div>
+
+            </div>
+
+
+
+            <div class="stat">
+
+                <div
+                    class="n"
+                    id="b"
+                >
+                    0
+                </div>
+
+                <div class="t">
+                    Em análise
+                </div>
+
+            </div>
+
+
+
+            <div class="stat">
+
+                <div
+                    class="n"
+                    id="c"
+                >
+                    0
+                </div>
+
+                <div class="t">
+                    Encaminhados
+                </div>
+
+            </div>
+
+
+
+            <div class="stat">
+
+                <div
+                    class="n"
+                    id="d"
+                >
+                    0
+                </div>
+
+                <div class="t">
+                    Concluídos
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ===================================== -->
+        <!-- LISTA DE CHAMADOS -->
+        <!-- ===================================== -->
+
+        <section class="card">
+
+
+            <div class="card-title">
+
+                <span>
+                    📋
+                </span>
+
+                <h2>
+                    Chamados recebidos
+                </h2>
+
+            </div>
+
+
+
+            <div class="toolbar">
+
+
+                <input
+                    id="filtro"
+                    type="text"
+                    placeholder="Pesquisar protocolo, bairro ou logradouro"
+                >
+
+
+                <select id="filtroStatus">
+
+                    <option value="">
+                        Todos os status
+                    </option>
+
+                    <option value="aberto">
+                        Aberto
+                    </option>
+
+                    <option value="em_analise">
+                        Em análise
+                    </option>
+
+                    <option value="encaminhado">
+                        Encaminhado
+                    </option>
+
+                    <option value="concluido">
+                        Concluído
+                    </option>
+
+                </select>
+
+
+                <button
+                    id="btnAtualizar"
+                    type="button"
+                    class="btn btn-light"
+                >
+                    Atualizar
+                </button>
+
+
+            </div>
+
+
+
+            <div class="tablewrap">
+
+
+                <table class="table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Protocolo
+                            </th>
+
+                            <th>
+                                Bairro
+                            </th>
+
+                            <th>
+                                Ocorrência
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Ação
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="tabela">
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ===================================== -->
+        <!-- DETALHES DO ATENDIMENTO -->
+        <!-- ===================================== -->
+
+        <section
+            id="detalhes"
+            class="card"
+            style="display: none;"
+        >
+
+
+            <div class="card-title">
+
+                <span>
+                    🛠️
+                </span>
+
+                <h2>
+                    Atendimento da ocorrência
+                </h2>
+
+            </div>
+
+
+
+            <!-- Dados do chamado carregados pelo JS -->
+
+            <div id="dados">
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- STATUS -->
+            <!-- ===================================== -->
+
+            <div
+                class="field"
+                style="margin-top: 20px;"
+            >
+
+                <label for="status">
+                    Status do atendimento
+                </label>
+
+
+                <select id="status">
+
+
+                    <option value="aberto">
+                        Aberto
+                    </option>
+
+
+                    <option value="em_analise">
+                        Em análise
+                    </option>
+
+
+                    <option value="encaminhado">
+                        Encaminhado para equipe
+                    </option>
+
+
+                    <option value="concluido">
+                        Concluído
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- EQUIPE RESPONSÁVEL -->
+            <!-- Só será exibido pelo JS quando -->
+            <!-- status >= encaminhado -->
+            <!-- ===================================== -->
+
+            <div
+                id="campoEquipe"
+                class="field"
+                style="display: none;"
+            >
+
+                <label for="equipe">
+                    Equipe responsável
+                </label>
+
+
+                <input
+                    id="equipe"
+                    type="text"
+                    placeholder="Ex.: Equipe 01"
+                >
+
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- RESULTADO DA CONCLUSÃO -->
+            <!-- Só aparece quando status = concluído -->
+            <!-- ===================================== -->
+
+            <div
+                id="campoConclusao"
+                class="field"
+                style="display: none;"
+            >
+
+
+                <label for="tipoConclusao">
+                    Resultado do atendimento
+                </label>
+
+
+                <select id="tipoConclusao">
+
+
+                    <option value="">
+                        Selecione o resultado
+                    </option>
+
+
+                    <optgroup label="Serviço executado">
+
+
+                        <option value="substituicao">
+                            Luminária substituída
+                        </option>
+
+
+                        <option value="reparo">
+                            Reparo realizado
+                        </option>
+
+
+                        <option value="normalizado">
+                            Funcionamento normalizado
+                        </option>
+
+
+                    </optgroup>
+
+
+
+                    <optgroup label="Serviço não executado">
+
+
+                        <option value="nao_localizado">
+                            Ponto não localizado
+                        </option>
+
+
+                        <option value="sem_defeito">
+                            Defeito não constatado
+                        </option>
+
+
+                        <option value="sem_acesso">
+                            Impossibilidade de acesso
+                        </option>
+
+
+                        <option value="fora_escopo">
+                            Ocorrência fora do escopo da iluminação pública
+                        </option>
+
+
+                    </optgroup>
+
+
+
+                    <option value="outro">
+                        Outro
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- OUTRO RESULTADO -->
+            <!-- ===================================== -->
+
+            <div
+                id="campoOutro"
+                class="field"
+                style="display: none;"
+            >
+
+
+                <label for="outroRetorno">
+                    Informe o resultado do atendimento
+                </label>
+
+
+                <textarea
+                    id="outroRetorno"
+                    placeholder="Descreva o serviço executado ou o motivo da não execução."
+                ></textarea>
+
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- RETORNO AO CIDADÃO -->
+            <!-- ===================================== -->
+
+            <div class="field">
+
+
+                <label for="retorno">
+                    Retorno ao cidadão
+                </label>
+
+
+                <textarea
+                    id="retorno"
+                    placeholder="Informe o andamento da solicitação."
+                ></textarea>
+
+
+                <p class="hint">
+
+                    Quando o atendimento for concluído,
+                    o sistema poderá preencher este campo
+                    automaticamente conforme o resultado selecionado.
+
+                </p>
+
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- SALVAR -->
+            <!-- ===================================== -->
+
+            <button
+                id="salvar"
+                type="button"
+                class="btn btn-success"
+            >
+
+                Salvar atendimento
+
+            </button>
+
+
+        </section>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- ===================================== -->
+<!-- JAVASCRIPT -->
+<!-- ===================================== -->
+
+<script src="supabase-config.js"></script>
+
+<script src="gestao.js"></script>
+
+
+</body>
+
+</html>
