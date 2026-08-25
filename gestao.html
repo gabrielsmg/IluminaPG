@@ -1,7 +1,9 @@
 <!doctype html>
+
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="utf-8">
 
     <meta
@@ -21,14 +23,17 @@
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
+
 </head>
 
 
 <body>
 
+
 <header class="topbar">
 
     <div class="topbar-inner">
+
 
         <div class="brand">
 
@@ -59,6 +64,7 @@
 
             <button
                 id="btnSair"
+                type="button"
                 style="display: none;"
             >
                 Sair
@@ -71,17 +77,15 @@
 </header>
 
 
+
 <main class="wrap">
 
 
-    <!-- ===================================== -->
-    <!-- LOGIN ADMINISTRATIVO -->
-    <!-- ===================================== -->
+    <!-- LOGIN -->
 
     <section
         id="loginCard"
-        class="card"
-        style="max-width: 480px; margin: 50px auto;"
+        class="card login-card"
     >
 
         <div class="card-title">
@@ -109,6 +113,7 @@
                 <input
                     id="loginEmail"
                     type="email"
+                    autocomplete="username"
                     required
                 >
 
@@ -124,6 +129,7 @@
                 <input
                     id="loginSenha"
                     type="password"
+                    autocomplete="current-password"
                     required
                 >
 
@@ -150,9 +156,7 @@
 
 
 
-    <!-- ===================================== -->
-    <!-- PAINEL ADMINISTRATIVO -->
-    <!-- ===================================== -->
+    <!-- PAINEL -->
 
     <section
         id="painel"
@@ -169,7 +173,7 @@
                 </h1>
 
                 <p>
-                    Acompanhe, encaminhe e finalize as ocorrências recebidas.
+                    Gerencie as solicitações recebidas e acompanhe os atendimentos.
                 </p>
 
             </div>
@@ -178,9 +182,7 @@
 
 
 
-        <!-- ===================================== -->
         <!-- INDICADORES -->
-        <!-- ===================================== -->
 
         <div class="stats">
 
@@ -188,8 +190,8 @@
             <div class="stat">
 
                 <div
-                    class="n"
                     id="a"
+                    class="n"
                 >
                     0
                 </div>
@@ -201,12 +203,11 @@
             </div>
 
 
-
             <div class="stat">
 
                 <div
-                    class="n"
                     id="b"
+                    class="n"
                 >
                     0
                 </div>
@@ -218,12 +219,11 @@
             </div>
 
 
-
             <div class="stat">
 
                 <div
-                    class="n"
                     id="c"
+                    class="n"
                 >
                     0
                 </div>
@@ -235,12 +235,11 @@
             </div>
 
 
-
             <div class="stat">
 
                 <div
-                    class="n"
                     id="d"
+                    class="n"
                 >
                     0
                 </div>
@@ -252,13 +251,27 @@
             </div>
 
 
+            <div class="stat">
+
+                <div
+                    id="e"
+                    class="n"
+                >
+                    0
+                </div>
+
+                <div class="t">
+                    Não executados
+                </div>
+
+            </div>
+
+
         </div>
 
 
 
-        <!-- ===================================== -->
-        <!-- LISTA DE CHAMADOS -->
-        <!-- ===================================== -->
+        <!-- CHAMADOS -->
 
         <section class="card">
 
@@ -282,7 +295,7 @@
 
                 <input
                     id="filtro"
-                    type="text"
+                    type="search"
                     placeholder="Pesquisar protocolo, bairro ou logradouro"
                 >
 
@@ -309,13 +322,17 @@
                         Concluído
                     </option>
 
+                    <option value="nao_executado">
+                        Não executado
+                    </option>
+
                 </select>
 
 
                 <button
                     id="btnAtualizar"
-                    type="button"
                     class="btn btn-light"
+                    type="button"
                 >
                     Atualizar
                 </button>
@@ -330,32 +347,31 @@
 
                 <table class="table">
 
-
                     <thead>
 
-                        <tr>
+                    <tr>
 
-                            <th>
-                                Protocolo
-                            </th>
+                        <th>
+                            Protocolo
+                        </th>
 
-                            <th>
-                                Bairro
-                            </th>
+                        <th>
+                            Bairro
+                        </th>
 
-                            <th>
-                                Ocorrência
-                            </th>
+                        <th>
+                            Ocorrência
+                        </th>
 
-                            <th>
-                                Status
-                            </th>
+                        <th>
+                            Status
+                        </th>
 
-                            <th>
-                                Ação
-                            </th>
+                        <th>
+                            Ação
+                        </th>
 
-                        </tr>
+                    </tr>
 
                     </thead>
 
@@ -363,7 +379,6 @@
                     <tbody id="tabela">
 
                     </tbody>
-
 
                 </table>
 
@@ -375,9 +390,7 @@
 
 
 
-        <!-- ===================================== -->
-        <!-- DETALHES DO ATENDIMENTO -->
-        <!-- ===================================== -->
+        <!-- DETALHES -->
 
         <section
             id="detalhes"
@@ -399,22 +412,31 @@
             </div>
 
 
-
-            <!-- Dados do chamado carregados pelo JS -->
-
             <div id="dados">
 
             </div>
 
 
 
-            <!-- ===================================== -->
+            <div
+                id="avisoBloqueado"
+                class="alert info"
+                style="display: none;"
+            >
+
+                As informações deste estágio já foram registradas e não podem ser alteradas.
+                Para continuar o atendimento, avance para o próximo status.
+
+            </div>
+
+
+
             <!-- STATUS -->
-            <!-- ===================================== -->
 
             <div
+                id="campoStatusContainer"
                 class="field"
-                style="margin-top: 20px;"
+                style="margin-top: 24px;"
             >
 
                 <label for="status">
@@ -424,39 +446,33 @@
 
                 <select id="status">
 
-
                     <option value="aberto">
                         Aberto
                     </option>
-
 
                     <option value="em_analise">
                         Em análise
                     </option>
 
-
                     <option value="encaminhado">
                         Encaminhado para equipe
                     </option>
-
 
                     <option value="concluido">
                         Concluído
                     </option>
 
+                    <option value="nao_executado">
+                        Não executado
+                    </option>
 
                 </select>
-
 
             </div>
 
 
 
-            <!-- ===================================== -->
-            <!-- EQUIPE RESPONSÁVEL -->
-            <!-- Só será exibido pelo JS quando -->
-            <!-- status >= encaminhado -->
-            <!-- ===================================== -->
+            <!-- EQUIPE -->
 
             <div
                 id="campoEquipe"
@@ -475,100 +491,36 @@
                     placeholder="Ex.: Equipe 01"
                 >
 
-
             </div>
 
 
 
-            <!-- ===================================== -->
-            <!-- RESULTADO DA CONCLUSÃO -->
-            <!-- Só aparece quando status = concluído -->
-            <!-- ===================================== -->
+            <!-- RESULTADO FINAL -->
 
             <div
-                id="campoConclusao"
+                id="campoResultado"
                 class="field"
                 style="display: none;"
             >
 
-
-                <label for="tipoConclusao">
+                <label for="tipoResultado">
                     Resultado do atendimento
                 </label>
 
 
-                <select id="tipoConclusao">
-
+                <select id="tipoResultado">
 
                     <option value="">
                         Selecione o resultado
                     </option>
 
-
-                    <optgroup label="Serviço executado">
-
-
-                        <option value="substituicao">
-                            Luminária substituída
-                        </option>
-
-
-                        <option value="reparo">
-                            Reparo realizado
-                        </option>
-
-
-                        <option value="normalizado">
-                            Funcionamento normalizado
-                        </option>
-
-
-                    </optgroup>
-
-
-
-                    <optgroup label="Serviço não executado">
-
-
-                        <option value="nao_localizado">
-                            Ponto não localizado
-                        </option>
-
-
-                        <option value="sem_defeito">
-                            Defeito não constatado
-                        </option>
-
-
-                        <option value="sem_acesso">
-                            Impossibilidade de acesso
-                        </option>
-
-
-                        <option value="fora_escopo">
-                            Ocorrência fora do escopo da iluminação pública
-                        </option>
-
-
-                    </optgroup>
-
-
-
-                    <option value="outro">
-                        Outro
-                    </option>
-
-
                 </select>
-
 
             </div>
 
 
 
-            <!-- ===================================== -->
-            <!-- OUTRO RESULTADO -->
-            <!-- ===================================== -->
+            <!-- OUTRO -->
 
             <div
                 id="campoOutro"
@@ -576,28 +528,26 @@
                 style="display: none;"
             >
 
-
                 <label for="outroRetorno">
-                    Informe o resultado do atendimento
+                    Informe o resultado
                 </label>
 
 
                 <textarea
                     id="outroRetorno"
-                    placeholder="Descreva o serviço executado ou o motivo da não execução."
+                    placeholder="Descreva o serviço realizado ou o motivo da não execução."
                 ></textarea>
-
 
             </div>
 
 
 
-            <!-- ===================================== -->
-            <!-- RETORNO AO CIDADÃO -->
-            <!-- ===================================== -->
+            <!-- RETORNO -->
 
-            <div class="field">
-
+            <div
+                id="campoRetornoContainer"
+                class="field"
+            >
 
                 <label for="retorno">
                     Retorno ao cidadão
@@ -606,35 +556,19 @@
 
                 <textarea
                     id="retorno"
-                    placeholder="Informe o andamento da solicitação."
+                    placeholder="Informe o andamento do atendimento."
                 ></textarea>
-
-
-                <p class="hint">
-
-                    Quando o atendimento for concluído,
-                    o sistema poderá preencher este campo
-                    automaticamente conforme o resultado selecionado.
-
-                </p>
-
 
             </div>
 
 
-
-            <!-- ===================================== -->
-            <!-- SALVAR -->
-            <!-- ===================================== -->
 
             <button
                 id="salvar"
                 type="button"
                 class="btn btn-success"
             >
-
                 Salvar atendimento
-
             </button>
 
 
@@ -647,10 +581,6 @@
 </main>
 
 
-
-<!-- ===================================== -->
-<!-- JAVASCRIPT -->
-<!-- ===================================== -->
 
 <script src="supabase-config.js"></script>
 

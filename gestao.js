@@ -1,30 +1,67 @@
 let chamados = [];
 let atual = null;
 
+
 const labels = {
+
     aberto: "Aberto",
+
     em_analise: "Em análise",
+
     encaminhado: "Encaminhado",
-    concluido: "Concluído"
+
+    concluido: "Concluído",
+
+    nao_executado: "Não executado"
+
 };
 
-const ordemStatus = [
-    "aberto",
-    "em_analise",
-    "encaminhado",
-    "concluido"
-];
 
-const respostasConclusao = {
+const proximoStatus = {
+
+    aberto: [
+        "em_analise"
+    ],
+
+    em_analise: [
+        "encaminhado"
+    ],
+
+    encaminhado: [
+        "concluido",
+        "nao_executado"
+    ],
+
+    concluido: [],
+
+    nao_executado: []
+
+};
+
+
+
+const respostasExecutadas = {
 
     substituicao:
         "Serviço executado. Luminária substituída e funcionamento da iluminação pública restabelecido.",
 
     reparo:
-        "Serviço executado. Foi realizado o reparo necessário e o funcionamento da iluminação pública foi restabelecido.",
+        "Serviço executado. Reparo realizado e funcionamento da iluminação pública restabelecido.",
 
     normalizado:
         "Serviço executado. O funcionamento da iluminação pública foi normalizado.",
+
+    conexao:
+        "Serviço executado. Conexões elétricas revisadas e funcionamento restabelecido.",
+
+    outro:
+        ""
+
+};
+
+
+
+const respostasNaoExecutadas = {
 
     nao_localizado:
         "Serviço não executado. O ponto informado na solicitação não foi localizado pela equipe responsável.",
@@ -33,16 +70,25 @@ const respostasConclusao = {
         "Serviço não executado. Após vistoria no local, não foi constatado defeito na iluminação pública.",
 
     sem_acesso:
-        "Serviço não executado devido à impossibilidade de acesso ao local pela equipe responsável.",
+        "Serviço não executado devido à impossibilidade de acesso ao local.",
 
     fora_escopo:
-        "Serviço não executado. Após análise, foi identificado que a ocorrência informada não pertence ao serviço de iluminação pública."
+        "Serviço não executado. A ocorrência informada não pertence ao serviço de iluminação pública.",
+
+    material:
+        "Serviço não executado devido à necessidade de material específico para realização do atendimento.",
+
+    outro:
+        ""
+
 };
 
 
-// ==========================================
-// ELEMENTOS DA INTERFACE
-// ==========================================
+
+// ==============================================
+// ELEMENTOS
+// ==============================================
+
 
 const loginCard =
     document.getElementById("loginCard");
@@ -65,6 +111,7 @@ const loginSenha =
 const loginMsg =
     document.getElementById("loginMsg");
 
+
 const filtro =
     document.getElementById("filtro");
 
@@ -77,26 +124,30 @@ const btnAtualizar =
 const tabela =
     document.getElementById("tabela");
 
+
 const detalhes =
     document.getElementById("detalhes");
 
 const dados =
     document.getElementById("dados");
 
+
 const campoStatus =
     document.getElementById("status");
-
-const campoEquipe =
-    document.getElementById("equipe");
 
 const campoEquipeContainer =
     document.getElementById("campoEquipe");
 
-const campoConclusao =
-    document.getElementById("campoConclusao");
+const campoEquipe =
+    document.getElementById("equipe");
 
-const tipoConclusao =
-    document.getElementById("tipoConclusao");
+
+const campoResultado =
+    document.getElementById("campoResultado");
+
+const tipoResultado =
+    document.getElementById("tipoResultado");
+
 
 const campoOutro =
     document.getElementById("campoOutro");
@@ -104,11 +155,25 @@ const campoOutro =
 const outroRetorno =
     document.getElementById("outroRetorno");
 
+
+const campoRetornoContainer =
+    document.getElementById(
+        "campoRetornoContainer"
+    );
+
 const campoRetorno =
     document.getElementById("retorno");
 
+
+const avisoBloqueado =
+    document.getElementById(
+        "avisoBloqueado"
+    );
+
+
 const btnSalvar =
     document.getElementById("salvar");
+
 
 const contadorAberto =
     document.getElementById("a");
@@ -122,58 +187,94 @@ const contadorEncaminhado =
 const contadorConcluido =
     document.getElementById("d");
 
+const contadorNaoExecutado =
+    document.getElementById("e");
 
-// ==========================================
-// SESSÃO
-// ==========================================
+
+
+// ==============================================
+// LOGIN
+// ==============================================
+
 
 async function verificarSessao() {
 
     const {
-        data: { session }
-    } = await supabaseClient.auth.getSession();
+        data: {
+            session
+        }
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
 
-    const logado = !!session;
+
+    const logado =
+        !!session;
+
 
     loginCard.style.display =
-        logado ? "none" : "block";
+        logado
+            ? "none"
+            : "block";
+
 
     painel.style.display =
-        logado ? "block" : "none";
+        logado
+            ? "block"
+            : "none";
+
 
     btnSair.style.display =
-        logado ? "inline-block" : "none";
+        logado
+            ? "inline-block"
+            : "none";
+
 
     if (logado) {
-        carregarChamados();
+
+        await carregarChamados();
+
     }
+
 }
 
 
 verificarSessao();
 
 
-// ==========================================
-// LOGIN
-// ==========================================
 
 formLogin.addEventListener(
+
     "submit",
+
     async function (event) {
 
         event.preventDefault();
 
-        loginMsg.className = "alert";
-        loginMsg.textContent = "";
 
-        const { error } =
-            await supabaseClient.auth.signInWithPassword({
-                email:
-                    loginEmail.value.trim(),
+        loginMsg.className =
+            "alert";
 
-                password:
-                    loginSenha.value
-            });
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+
+                    email:
+                        loginEmail
+                            .value
+                            .trim(),
+
+                    password:
+                        loginSenha
+                            .value
+
+                });
+
 
         if (error) {
 
@@ -184,38 +285,56 @@ formLogin.addEventListener(
                 "E-mail ou senha inválidos.";
 
             return;
+
         }
 
-        verificarSessao();
+
+        await verificarSessao();
+
     }
+
 );
 
 
-// ==========================================
-// LOGOUT
-// ==========================================
 
 btnSair.addEventListener(
+
     "click",
+
     async function () {
 
-        await supabaseClient.auth.signOut();
+        await supabaseClient
+            .auth
+            .signOut();
+
 
         location.reload();
+
     }
+
 );
 
 
-// ==========================================
-// CARREGAR CHAMADOS
-// ==========================================
+
+// ==============================================
+// CARREGAR
+// ==============================================
+
 
 async function carregarChamados() {
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabaseClient
-            .from("chamados")
+
+            .from(
+                "chamados"
+            )
+
             .select("*")
+
             .order(
                 "criado_em",
                 {
@@ -223,71 +342,105 @@ async function carregarChamados() {
                 }
             );
 
+
     if (error) {
 
         console.error(
-            "Erro ao carregar chamados:",
             error
         );
 
         return;
+
     }
+
 
     chamados =
         data || [];
 
-    renderizarChamados();
 
     atualizarIndicadores();
+
+    renderizarChamados();
+
 }
 
 
-// ==========================================
+
+// ==============================================
 // INDICADORES
-// ==========================================
+// ==============================================
+
 
 function atualizarIndicadores() {
 
+
     contadorAberto.textContent =
         chamados.filter(
-            x => x.status === "aberto"
+            x =>
+                x.status ===
+                "aberto"
         ).length;
+
 
     contadorAnalise.textContent =
         chamados.filter(
-            x => x.status === "em_analise"
+            x =>
+                x.status ===
+                "em_analise"
         ).length;
+
 
     contadorEncaminhado.textContent =
         chamados.filter(
-            x => x.status === "encaminhado"
+            x =>
+                x.status ===
+                "encaminhado"
         ).length;
+
 
     contadorConcluido.textContent =
         chamados.filter(
-            x => x.status === "concluido"
+            x =>
+                x.status ===
+                "concluido"
         ).length;
+
+
+    contadorNaoExecutado.textContent =
+        chamados.filter(
+            x =>
+                x.status ===
+                "nao_executado"
+        ).length;
+
 }
 
 
-// ==========================================
-// RENDERIZAR TABELA
-// ==========================================
+
+// ==============================================
+// TABELA
+// ==============================================
+
 
 function renderizarChamados() {
 
+
     const pesquisa =
-        filtro.value
+        filtro
+            .value
             .trim()
             .toLowerCase();
 
-    const statusFiltro =
+
+    const statusSelecionado =
         filtroStatus.value;
 
 
     const lista =
         chamados.filter(
+
             chamado => {
+
 
                 const texto =
                     `
@@ -297,64 +450,85 @@ function renderizarChamados() {
                     `
                         .toLowerCase();
 
-                const correspondeTexto =
-                    !pesquisa ||
-                    texto.includes(
-                        pesquisa
-                    );
-
-                const correspondeStatus =
-                    !statusFiltro ||
-                    chamado.status ===
-                        statusFiltro;
 
                 return (
-                    correspondeTexto &&
-                    correspondeStatus
+
+                    (
+                        !pesquisa
+                        ||
+                        texto.includes(
+                            pesquisa
+                        )
+                    )
+
+                    &&
+
+                    (
+                        !statusSelecionado
+                        ||
+                        chamado.status ===
+                        statusSelecionado
+                    )
+
                 );
+
             }
+
         );
 
 
-    if (lista.length === 0) {
+
+    if (
+        lista.length === 0
+    ) {
 
         tabela.innerHTML = `
+
             <tr>
+
                 <td
                     colspan="5"
-                    style="
-                        text-align: center;
-                        padding: 30px;
-                        color: #6b7280;
-                    "
+                    class="empty-row"
                 >
+
                     Nenhum chamado encontrado.
+
                 </td>
+
             </tr>
         `;
 
         return;
+
     }
+
 
 
     tabela.innerHTML =
         lista.map(
+
             chamado => `
+
                 <tr>
 
                     <td>
+
                         <strong>
                             ${chamado.protocolo}
                         </strong>
+
                     </td>
+
 
                     <td>
                         ${chamado.bairro}
                     </td>
 
+
                     <td>
                         ${chamado.tipo_ocorrencia}
                     </td>
+
 
                     <td>
 
@@ -375,31 +549,45 @@ function renderizarChamados() {
 
                     </td>
 
+
                     <td>
 
                         <button
+
                             type="button"
-                            class="btn btn-light"
+
+                            class="
+                                btn
+                                btn-light
+                            "
+
                             onclick="
                                 abrirChamado(
                                     '${chamado.id}'
                                 )
                             "
                         >
+
                             Abrir
+
                         </button>
 
                     </td>
 
                 </tr>
+
             `
+
         ).join("");
+
 }
 
 
-// ==========================================
+
+// ==============================================
 // FILTROS
-// ==========================================
+// ==============================================
+
 
 filtro.addEventListener(
     "input",
@@ -419,202 +607,427 @@ btnAtualizar.addEventListener(
 );
 
 
-// ==========================================
-// CONFIGURAR STATUS
-// ==========================================
+
+// ==============================================
+// STATUS DISPONÍVEIS
+// ==============================================
+
 
 function configurarStatus(
     statusAtual
 ) {
 
-    const indiceAtual =
-        ordemStatus.indexOf(
+
+    const permitidos =
+        proximoStatus[
             statusAtual
+        ] || [];
+
+
+    Array
+        .from(
+            campoStatus.options
+        )
+        .forEach(
+
+            option => {
+
+                option.disabled =
+                    !(
+                        option.value ===
+                        statusAtual
+
+                        ||
+
+                        permitidos.includes(
+                            option.value
+                        )
+                    );
+
+            }
+
         );
 
 
-    Array.from(
-        campoStatus.options
-    ).forEach(
-        option => {
+    campoStatus.value =
+        statusAtual;
 
-            const indiceOpcao =
-                ordemStatus.indexOf(
-                    option.value
-                );
-
-            option.disabled =
-                indiceOpcao <
-                indiceAtual;
-        }
-    );
-
-
-    atualizarCamposPorStatus();
 }
 
 
-// ==========================================
-// MOSTRAR / OCULTAR CAMPOS
-// ==========================================
 
-function atualizarCamposPorStatus() {
+// ==============================================
+// CAMPOS DE ACORDO COM NOVO STATUS
+// ==============================================
 
-    const statusSelecionado =
+
+function atualizarCampos() {
+
+
+    const chamadoAtual =
+        chamados.find(
+            x =>
+                x.id ===
+                atual
+        );
+
+
+    if (!chamadoAtual) {
+        return;
+    }
+
+
+    const novoStatus =
         campoStatus.value;
 
 
-    const indiceStatus =
-        ordemStatus.indexOf(
-            statusSelecionado
-        );
+    const statusMudou =
+        novoStatus !==
+        chamadoAtual.status;
 
-    const indiceEncaminhado =
-        ordemStatus.indexOf(
+
+
+    // --------------------------------
+    // Tudo bloqueado se não avançou
+    // --------------------------------
+
+    campoEquipe.disabled =
+        !statusMudou;
+
+    campoRetorno.disabled =
+        !statusMudou;
+
+
+    btnSalvar.disabled =
+        !statusMudou;
+
+
+
+    avisoBloqueado.style.display =
+        statusMudou
+            ? "none"
+            : "block";
+
+
+
+    // --------------------------------
+    // Equipe
+    // --------------------------------
+
+    const mostrarEquipe =
+
+        novoStatus ===
             "encaminhado"
-        );
+
+        ||
+
+        novoStatus ===
+            "concluido"
+
+        ||
+
+        novoStatus ===
+            "nao_executado";
 
 
-    // ------------------------------
-    // EQUIPE
-    // ------------------------------
+    campoEquipeContainer.style.display =
+        mostrarEquipe
+            ? "block"
+            : "none";
+
+
+
+    // --------------------------------
+    // Resultado
+    // --------------------------------
+
+    campoResultado.style.display =
+        (
+            novoStatus ===
+                "concluido"
+
+            ||
+
+            novoStatus ===
+                "nao_executado"
+        )
+            ? "block"
+            : "none";
+
+
+
+    campoOutro.style.display =
+        "none";
+
+
+    outroRetorno.value =
+        "";
+
 
     if (
-        indiceStatus >=
-        indiceEncaminhado
-    ) {
-
-        campoEquipeContainer
-            .style
-            .display = "block";
-
-    } else {
-
-        campoEquipeContainer
-            .style
-            .display = "none";
-
-        campoEquipe.value = "";
-    }
-
-
-    // ------------------------------
-    // CONCLUSÃO
-    // ------------------------------
-
-    if (
-        statusSelecionado ===
+        novoStatus ===
         "concluido"
     ) {
 
-        campoConclusao
-            .style
-            .display = "block";
+        carregarResultadosExecutados();
 
-    } else {
-
-        campoConclusao
-            .style
-            .display = "none";
-
-        campoOutro
-            .style
-            .display = "none";
-
-        tipoConclusao.value = "";
-
-        outroRetorno.value = "";
     }
+
+
+    if (
+        novoStatus ===
+        "nao_executado"
+    ) {
+
+        carregarResultadosNaoExecutados();
+
+    }
+
+
+
+    if (statusMudou) {
+
+        campoRetorno.value =
+            "";
+
+    }
+
 }
 
 
-// ==========================================
-// ALTERAÇÃO DO STATUS
-// ==========================================
+
+// ==============================================
+// OPÇÕES CONCLUÍDO
+// ==============================================
+
+
+function carregarResultadosExecutados() {
+
+
+    tipoResultado.innerHTML = `
+
+        <option value="">
+            Selecione o serviço realizado
+        </option>
+
+        <option value="substituicao">
+            Luminária substituída
+        </option>
+
+        <option value="reparo">
+            Reparo realizado
+        </option>
+
+        <option value="normalizado">
+            Funcionamento normalizado
+        </option>
+
+        <option value="conexao">
+            Conexões elétricas revisadas
+        </option>
+
+        <option value="outro">
+            Outro
+        </option>
+
+    `;
+
+}
+
+
+
+// ==============================================
+// OPÇÕES NÃO EXECUTADO
+// ==============================================
+
+
+function carregarResultadosNaoExecutados() {
+
+
+    tipoResultado.innerHTML = `
+
+        <option value="">
+            Selecione o motivo
+        </option>
+
+        <option value="nao_localizado">
+            Ponto não localizado
+        </option>
+
+        <option value="sem_defeito">
+            Defeito não constatado
+        </option>
+
+        <option value="sem_acesso">
+            Impossibilidade de acesso
+        </option>
+
+        <option value="fora_escopo">
+            Fora do escopo da iluminação pública
+        </option>
+
+        <option value="material">
+            Necessidade de material específico
+        </option>
+
+        <option value="outro">
+            Outro
+        </option>
+
+    `;
+
+}
+
+
+
+// ==============================================
+// ALTERAÇÃO STATUS
+// ==============================================
+
 
 campoStatus.addEventListener(
+
     "change",
-    atualizarCamposPorStatus
+
+    atualizarCampos
+
 );
 
 
-// ==========================================
-// RESPOSTAS AUTOMÁTICAS
-// ==========================================
 
-tipoConclusao.addEventListener(
+// ==============================================
+// RESULTADO AUTOMÁTICO
+// ==============================================
+
+
+tipoResultado.addEventListener(
+
     "change",
+
     function () {
 
-        const tipo =
-            tipoConclusao.value;
+
+        const chamadoAtual =
+            chamados.find(
+                x =>
+                    x.id ===
+                    atual
+            );
 
 
-        // ------------------------------
-        // OUTRO
-        // ------------------------------
-
-        if (
-            tipo === "outro"
-        ) {
-
-            campoOutro
-                .style
-                .display = "block";
-
-            campoRetorno.value = "";
-
-            outroRetorno.focus();
-
+        if (!chamadoAtual) {
             return;
         }
 
 
-        campoOutro
-            .style
-            .display = "none";
-
-        outroRetorno.value = "";
+        const status =
+            campoStatus.value;
 
 
-        campoRetorno.value =
-            respostasConclusao[
-                tipo
-            ] || "";
+        const valor =
+            tipoResultado.value;
+
+
+
+        if (
+            valor ===
+            "outro"
+        ) {
+
+            campoOutro.style.display =
+                "block";
+
+
+            campoRetorno.value =
+                "";
+
+
+            outroRetorno.focus();
+
+
+            return;
+
+        }
+
+
+
+        campoOutro.style.display =
+            "none";
+
+
+        if (
+            status ===
+            "concluido"
+        ) {
+
+            campoRetorno.value =
+                respostasExecutadas[
+                    valor
+                ] || "";
+
+        }
+
+
+        if (
+            status ===
+            "nao_executado"
+        ) {
+
+            campoRetorno.value =
+                respostasNaoExecutadas[
+                    valor
+                ] || "";
+
+        }
+
     }
+
 );
 
 
-// ==========================================
-// CAMPO OUTRO
-// ==========================================
+
+// ==============================================
+// OUTRO
+// ==============================================
+
 
 outroRetorno.addEventListener(
+
     "input",
+
     function () {
 
+
         if (
-            tipoConclusao.value ===
+            tipoResultado.value ===
             "outro"
         ) {
 
             campoRetorno.value =
                 outroRetorno.value;
+
         }
+
     }
+
 );
 
 
-// ==========================================
+
+// ==============================================
 // ABRIR CHAMADO
-// ==========================================
+// ==============================================
+
 
 window.abrirChamado =
     function (id) {
 
+
         const chamado =
             chamados.find(
-                x => x.id === id
+                x =>
+                    x.id ===
+                    id
             );
 
 
@@ -627,62 +1040,68 @@ window.abrirChamado =
             chamado.id;
 
 
+
         dados.innerHTML = `
 
-            <div
-                class="
-                    admin-detail-grid
-                "
-            >
+            <div class="admin-detail-grid">
 
-                <div
-                    class="
-                        detail-block
-                    "
-                >
+
+                <div class="detail-block">
+
 
                     <p>
+
                         <strong>
                             Protocolo:
                         </strong>
 
                         ${chamado.protocolo}
+
                     </p>
 
+
                     <p>
+
                         <strong>
                             Solicitante:
                         </strong>
 
                         ${chamado.nome}
+
                     </p>
 
+
                     <p>
+
                         <strong>
                             Telefone:
                         </strong>
 
                         ${chamado.telefone}
+
                     </p>
 
+
                     <p>
+
                         <strong>
                             E-mail:
                         </strong>
 
                         ${chamado.email}
+
                     </p>
+
 
                 </div>
 
 
-                <div
-                    class="
-                        detail-block
-                    "
-                >
+
+                <div class="detail-block">
+
 
                     <p>
+
                         <strong>
                             Local:
                         </strong>
@@ -691,53 +1110,58 @@ window.abrirChamado =
                         ${chamado.numero_referencia}
                         -
                         ${chamado.bairro}
+
                     </p>
 
 
                     <p>
+
                         <strong>
                             Ocorrência:
                         </strong>
 
                         ${chamado.tipo_ocorrencia}
+
                     </p>
 
 
                     <p>
+
                         <strong>
                             Descrição:
                         </strong>
 
                         ${
-                            chamado.descricao ||
+                            chamado.descricao
+                            ||
                             "Sem observações."
                         }
+
                     </p>
 
 
                     <p>
+
                         <strong>
-                            Aberto em:
+                            Status atual:
                         </strong>
 
                         ${
-                            new Date(
-                                chamado.criado_em
-                            )
-                            .toLocaleString(
-                                "pt-BR"
-                            )
+                            labels[
+                                chamado.status
+                            ]
                         }
+
                     </p>
+
 
                 </div>
 
+
             </div>
+
         `;
 
-
-        campoStatus.value =
-            chamado.status;
 
 
         campoEquipe.value =
@@ -752,12 +1176,17 @@ window.abrirChamado =
             || "";
 
 
-        tipoConclusao.value =
-            "";
+        tipoResultado.innerHTML = `
+
+            <option value="">
+                Selecione
+            </option>
+
+        `;
 
 
-        outroRetorno.value =
-            "";
+        campoOutro.style.display =
+            "none";
 
 
         configurarStatus(
@@ -765,39 +1194,89 @@ window.abrirChamado =
         );
 
 
+        atualizarCampos();
+
+
+
+        // Estados finais ficam somente leitura
+
+        if (
+            chamado.status ===
+                "concluido"
+
+            ||
+
+            chamado.status ===
+                "nao_executado"
+        ) {
+
+            campoStatus.disabled =
+                true;
+
+            campoEquipe.disabled =
+                true;
+
+            campoRetorno.disabled =
+                true;
+
+            tipoResultado.disabled =
+                true;
+
+            btnSalvar.style.display =
+                "none";
+
+            avisoBloqueado.style.display =
+                "block";
+
+        }
+
+        else {
+
+            campoStatus.disabled =
+                false;
+
+            tipoResultado.disabled =
+                false;
+
+            btnSalvar.style.display =
+                "inline-flex";
+
+        }
+
+
+
         detalhes.style.display =
             "block";
 
 
         detalhes.scrollIntoView({
+
             behavior:
                 "smooth"
+
         });
+
     };
 
 
-// ==========================================
-// SALVAR ATENDIMENTO
-// ==========================================
+
+// ==============================================
+// SALVAR
+// ==============================================
+
 
 btnSalvar.addEventListener(
+
     "click",
+
     async function () {
-
-
-        if (!atual) {
-
-            alert(
-                "Nenhum chamado selecionado."
-            );
-
-            return;
-        }
 
 
         const chamadoAtual =
             chamados.find(
-                x => x.id === atual
+                x =>
+                    x.id ===
+                    atual
             );
 
 
@@ -808,123 +1287,136 @@ btnSalvar.addEventListener(
             );
 
             return;
+
         }
+
 
 
         const novoStatus =
             campoStatus.value;
 
 
-        const indiceAtual =
-            ordemStatus.indexOf(
-                chamadoAtual.status
-            );
-
-
-        const indiceNovo =
-            ordemStatus.indexOf(
-                novoStatus
-            );
-
-
-        // ==================================
-        // NÃO PERMITIR RETROCESSO
-        // ==================================
 
         if (
-            indiceNovo <
-            indiceAtual
+            novoStatus ===
+            chamadoAtual.status
         ) {
 
             alert(
-                "Não é permitido retornar o chamado para um status anterior."
+                "Selecione o próximo status do atendimento."
             );
 
-            campoStatus.value =
-                chamadoAtual.status;
-
             return;
+
         }
 
 
-        // ==================================
-        // EQUIPE OBRIGATÓRIA
-        // ==================================
+
+        const permitidos =
+            proximoStatus[
+                chamadoAtual.status
+            ] || [];
+
 
         if (
-            (
-                novoStatus ===
-                "encaminhado"
-                ||
-                novoStatus ===
-                "concluido"
+            !permitidos.includes(
+                novoStatus
             )
+        ) {
+
+            alert(
+                "Essa alteração de status não é permitida."
+            );
+
+            return;
+
+        }
+
+
+
+        // --------------------------------
+        // Equipe obrigatória
+        // --------------------------------
+
+        if (
+            novoStatus ===
+                "encaminhado"
+
             &&
+
             !campoEquipe
                 .value
                 .trim()
         ) {
 
             alert(
-                "Informe a equipe responsável pelo atendimento."
+                "Informe a equipe responsável."
             );
 
             campoEquipe.focus();
 
             return;
+
         }
 
 
-        // ==================================
-        // RESULTADO OBRIGATÓRIO
-        // ==================================
+
+        // --------------------------------
+        // Resultado obrigatório
+        // --------------------------------
 
         if (
-            novoStatus ===
-            "concluido"
+
+            (
+                novoStatus ===
+                    "concluido"
+
+                ||
+
+                novoStatus ===
+                    "nao_executado"
+            )
+
             &&
-            !tipoConclusao.value
+
+            !tipoResultado.value
+
         ) {
 
             alert(
                 "Selecione o resultado do atendimento."
             );
 
-            tipoConclusao.focus();
-
             return;
+
         }
 
 
-        // ==================================
-        // OUTRO OBRIGATÓRIO
-        // ==================================
 
         if (
-            novoStatus ===
-            "concluido"
-            &&
-            tipoConclusao.value ===
+
+            tipoResultado.value ===
                 "outro"
+
             &&
+
             !outroRetorno
                 .value
                 .trim()
+
         ) {
 
             alert(
-                "Descreva o resultado do atendimento."
+                "Informe o resultado do atendimento."
             );
 
             outroRetorno.focus();
 
             return;
+
         }
 
 
-        // ==================================
-        // RETORNO OBRIGATÓRIO
-        // ==================================
 
         if (
             !campoRetorno
@@ -933,23 +1425,33 @@ btnSalvar.addEventListener(
         ) {
 
             alert(
-                "Informe o retorno que será apresentado ao cidadão."
+                "Informe o retorno ao cidadão."
             );
 
-            campoRetorno.focus();
-
             return;
+
         }
 
 
-        // ==================================
-        // OBJETO DE ATUALIZAÇÃO
-        // ==================================
 
-        const dadosAtualizados = {
+        const terminal =
+
+            novoStatus ===
+                "concluido"
+
+            ||
+
+            novoStatus ===
+                "nao_executado";
+
+
+
+        const payload = {
+
 
             status:
                 novoStatus,
+
 
             equipe_responsavel:
                 campoEquipe
@@ -957,53 +1459,53 @@ btnSalvar.addEventListener(
                     .trim()
                 || null,
 
+
             retorno_prefeitura:
                 campoRetorno
                     .value
-                    .trim()
-                || null,
+                    .trim(),
+
 
             atualizado_em:
                 new Date()
                     .toISOString(),
 
+
             concluido_em:
-                novoStatus ===
-                "concluido"
+                terminal
 
                     ? new Date()
                         .toISOString()
 
                     : null
+
         };
 
 
-        // ==================================
-        // UPDATE SUPABASE
-        // ==================================
 
         const {
-            data,
             error
         } =
             await supabaseClient
+
                 .from(
                     "chamados"
                 )
+
                 .update(
-                    dadosAtualizados
+                    payload
                 )
+
                 .eq(
                     "id",
                     atual
-                )
-                .select();
+                );
+
 
 
         if (error) {
 
             console.error(
-                "Erro ao atualizar chamado:",
                 error
             );
 
@@ -1012,13 +1514,9 @@ btnSalvar.addEventListener(
             );
 
             return;
+
         }
 
-
-        console.log(
-            "Chamado atualizado:",
-            data
-        );
 
 
         alert(
@@ -1030,9 +1528,12 @@ btnSalvar.addEventListener(
             "none";
 
 
-        atual = null;
+        atual =
+            null;
 
 
         await carregarChamados();
+
     }
+
 );
