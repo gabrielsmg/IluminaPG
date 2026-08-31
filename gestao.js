@@ -1,5 +1,7 @@
 let chamados = [];
+
 let atual = null;
+
 
 
 const labels = {
@@ -15,6 +17,7 @@ const labels = {
     nao_executado: "Não executado"
 
 };
+
 
 
 const proximoStatus = {
@@ -35,6 +38,18 @@ const proximoStatus = {
     concluido: [],
 
     nao_executado: []
+
+};
+
+
+
+const respostasStatus = {
+
+    em_analise:
+        "Sua solicitação foi recebida e está em análise pela equipe responsável.",
+
+    encaminhado:
+        "Sua solicitação foi analisada e encaminhada para a equipe responsável pela execução do serviço."
 
 };
 
@@ -85,10 +100,9 @@ const respostasNaoExecutadas = {
 
 
 
-// ==============================================
+// ==================================================
 // ELEMENTOS
-// ==============================================
-
+// ==================================================
 
 const loginCard =
     document.getElementById("loginCard");
@@ -131,6 +145,9 @@ const detalhes =
 const dados =
     document.getElementById("dados");
 
+const historicoAdmin =
+    document.getElementById("historicoAdmin");
+
 
 const campoStatus =
     document.getElementById("status");
@@ -156,19 +173,12 @@ const outroRetorno =
     document.getElementById("outroRetorno");
 
 
-const campoRetornoContainer =
-    document.getElementById(
-        "campoRetornoContainer"
-    );
-
 const campoRetorno =
     document.getElementById("retorno");
 
 
 const avisoBloqueado =
-    document.getElementById(
-        "avisoBloqueado"
-    );
+    document.getElementById("avisoBloqueado");
 
 
 const btnSalvar =
@@ -192,10 +202,9 @@ const contadorNaoExecutado =
 
 
 
-// ==============================================
-// LOGIN
-// ==============================================
-
+// ==================================================
+// SESSÃO
+// ==================================================
 
 async function verificarSessao() {
 
@@ -240,15 +249,21 @@ async function verificarSessao() {
 }
 
 
+
 verificarSessao();
 
 
+
+// ==================================================
+// LOGIN
+// ==================================================
 
 formLogin.addEventListener(
 
     "submit",
 
     async function (event) {
+
 
         event.preventDefault();
 
@@ -297,11 +312,16 @@ formLogin.addEventListener(
 
 
 
+// ==================================================
+// LOGOUT
+// ==================================================
+
 btnSair.addEventListener(
 
     "click",
 
     async function () {
+
 
         await supabaseClient
             .auth
@@ -316,12 +336,12 @@ btnSair.addEventListener(
 
 
 
-// ==============================================
-// CARREGAR
-// ==============================================
-
+// ==================================================
+// CARREGAR CHAMADOS
+// ==================================================
 
 async function carregarChamados() {
+
 
     const {
         data,
@@ -329,9 +349,7 @@ async function carregarChamados() {
     } =
         await supabaseClient
 
-            .from(
-                "chamados"
-            )
+            .from("chamados")
 
             .select("*")
 
@@ -346,6 +364,7 @@ async function carregarChamados() {
     if (error) {
 
         console.error(
+            "Erro ao carregar chamados:",
             error
         );
 
@@ -366,10 +385,9 @@ async function carregarChamados() {
 
 
 
-// ==============================================
+// ==================================================
 // INDICADORES
-// ==============================================
-
+// ==================================================
 
 function atualizarIndicadores() {
 
@@ -377,50 +395,44 @@ function atualizarIndicadores() {
     contadorAberto.textContent =
         chamados.filter(
             x =>
-                x.status ===
-                "aberto"
+                x.status === "aberto"
         ).length;
 
 
     contadorAnalise.textContent =
         chamados.filter(
             x =>
-                x.status ===
-                "em_analise"
+                x.status === "em_analise"
         ).length;
 
 
     contadorEncaminhado.textContent =
         chamados.filter(
             x =>
-                x.status ===
-                "encaminhado"
+                x.status === "encaminhado"
         ).length;
 
 
     contadorConcluido.textContent =
         chamados.filter(
             x =>
-                x.status ===
-                "concluido"
+                x.status === "concluido"
         ).length;
 
 
     contadorNaoExecutado.textContent =
         chamados.filter(
             x =>
-                x.status ===
-                "nao_executado"
+                x.status === "nao_executado"
         ).length;
 
 }
 
 
 
-// ==============================================
+// ==================================================
 // TABELA
-// ==============================================
-
+// ==================================================
 
 function renderizarChamados() {
 
@@ -467,7 +479,7 @@ function renderizarChamados() {
                         !statusSelecionado
                         ||
                         chamado.status ===
-                        statusSelecionado
+                            statusSelecionado
                     )
 
                 );
@@ -478,9 +490,7 @@ function renderizarChamados() {
 
 
 
-    if (
-        lista.length === 0
-    ) {
+    if (lista.length === 0) {
 
         tabela.innerHTML = `
 
@@ -488,14 +498,17 @@ function renderizarChamados() {
 
                 <td
                     colspan="5"
-                    class="empty-row"
+                    style="
+                        text-align:center;
+                        padding:30px;
+                        color:#6b7280;
+                    "
                 >
-
                     Nenhum chamado encontrado.
-
                 </td>
 
             </tr>
+
         `;
 
         return;
@@ -511,12 +524,11 @@ function renderizarChamados() {
 
                 <tr>
 
-                    <td>
 
+                    <td>
                         <strong>
                             ${chamado.protocolo}
                         </strong>
-
                     </td>
 
 
@@ -538,13 +550,7 @@ function renderizarChamados() {
                                 ${chamado.status}
                             "
                         >
-
-                            ${
-                                labels[
-                                    chamado.status
-                                ]
-                            }
-
+                            ${labels[chamado.status]}
                         </span>
 
                     </td>
@@ -553,26 +559,19 @@ function renderizarChamados() {
                     <td>
 
                         <button
-
                             type="button"
-
-                            class="
-                                btn
-                                btn-light
-                            "
-
+                            class="btn btn-light"
                             onclick="
                                 abrirChamado(
                                     '${chamado.id}'
                                 )
                             "
                         >
-
                             Abrir
-
                         </button>
 
                     </td>
+
 
                 </tr>
 
@@ -584,10 +583,9 @@ function renderizarChamados() {
 
 
 
-// ==============================================
+// ==================================================
 // FILTROS
-// ==============================================
-
+// ==================================================
 
 filtro.addEventListener(
     "input",
@@ -608,10 +606,180 @@ btnAtualizar.addEventListener(
 
 
 
-// ==============================================
-// STATUS DISPONÍVEIS
-// ==============================================
+// ==================================================
+// HISTÓRICO
+// ==================================================
 
+async function carregarHistorico(
+    protocolo
+) {
+
+
+    historicoAdmin.innerHTML = `
+
+        <p class="hint">
+            Carregando histórico...
+        </p>
+
+    `;
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+
+            .from(
+                "historico_chamados"
+            )
+
+            .select("*")
+
+            .eq(
+                "protocolo",
+                protocolo
+            )
+
+            .order(
+                "criado_em",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar histórico:",
+            error
+        );
+
+
+        historicoAdmin.innerHTML = `
+
+            <p class="hint">
+                Não foi possível carregar o histórico.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        historicoAdmin.innerHTML = `
+
+            <p class="hint">
+                Ainda não existem movimentações registradas.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+
+    historicoAdmin.innerHTML =
+        data.map(
+
+            item => `
+
+                <article
+                    class="
+                        history-item
+                        ${item.status_novo}
+                    "
+                >
+
+
+                    <div class="history-dot">
+                    </div>
+
+
+
+                    <div class="history-content">
+
+
+                        <div class="history-header">
+
+                            <strong>
+                                ${labels[item.status_novo]}
+                            </strong>
+
+
+                            <span>
+                                ${
+                                    new Date(
+                                        item.criado_em
+                                    )
+                                    .toLocaleString(
+                                        "pt-BR"
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+
+
+                        ${
+                            item.equipe_responsavel
+
+                                ? `
+                                    <p>
+                                        <strong>
+                                            Equipe:
+                                        </strong>
+
+                                        ${item.equipe_responsavel}
+                                    </p>
+                                `
+
+                                : ""
+                        }
+
+
+
+                        ${
+                            item.retorno
+
+                                ? `
+                                    <p>
+                                        ${item.retorno}
+                                    </p>
+                                `
+
+                                : ""
+                        }
+
+
+                    </div>
+
+
+                </article>
+
+            `
+
+        ).join("");
+
+}
+
+
+
+// ==================================================
+// CONFIGURAÇÃO DE STATUS
+// ==================================================
 
 function configurarStatus(
     statusAtual
@@ -632,10 +800,11 @@ function configurarStatus(
 
             option => {
 
+
                 option.disabled =
                     !(
                         option.value ===
-                        statusAtual
+                            statusAtual
 
                         ||
 
@@ -656,10 +825,9 @@ function configurarStatus(
 
 
 
-// ==============================================
-// CAMPOS DE ACORDO COM NOVO STATUS
-// ==============================================
-
+// ==================================================
+// CAMPOS POR STATUS
+// ==================================================
 
 function atualizarCampos() {
 
@@ -667,14 +835,16 @@ function atualizarCampos() {
     const chamadoAtual =
         chamados.find(
             x =>
-                x.id ===
-                atual
+                x.id === atual
         );
 
 
     if (!chamadoAtual) {
+
         return;
+
     }
+
 
 
     const novoStatus =
@@ -687,39 +857,161 @@ function atualizarCampos() {
 
 
 
-    // --------------------------------
-    // Tudo bloqueado se não avançou
-    // --------------------------------
+    // ==============================================
+    // AVISO DE BLOQUEIO
+    // Não aparece enquanto o chamado estiver ABERTO
+    // ==============================================
 
-    campoEquipe.disabled =
-        !statusMudou;
+    if (
 
-    campoRetorno.disabled =
-        !statusMudou;
+        chamadoAtual.status !==
+            "aberto"
+
+        &&
+
+        !statusMudou
+
+    ) {
+
+        avisoBloqueado.style.display =
+            "block";
+
+    }
+
+    else {
+
+        avisoBloqueado.style.display =
+            "none";
+
+    }
 
 
-    btnSalvar.disabled =
-        !statusMudou;
 
+    // ==============================================
+    // ESTADOS FINAIS
+    // ==============================================
 
+    const finalizado =
 
-    avisoBloqueado.style.display =
-        statusMudou
-            ? "none"
-            : "block";
-
-
-
-    // --------------------------------
-    // Equipe
-    // --------------------------------
-
-    const mostrarEquipe =
-
-        novoStatus ===
-            "encaminhado"
+        chamadoAtual.status ===
+            "concluido"
 
         ||
+
+        chamadoAtual.status ===
+            "nao_executado";
+
+
+    if (finalizado) {
+
+
+        campoStatus.disabled =
+            true;
+
+
+        campoEquipe.disabled =
+            true;
+
+
+        campoRetorno.disabled =
+            true;
+
+
+        tipoResultado.disabled =
+            true;
+
+
+        btnSalvar.style.display =
+            "none";
+
+
+        campoEquipeContainer.style.display =
+            chamadoAtual.equipe_responsavel
+                ? "block"
+                : "none";
+
+
+        campoResultado.style.display =
+            "none";
+
+
+        campoOutro.style.display =
+            "none";
+
+
+        return;
+
+    }
+
+
+
+    campoStatus.disabled =
+        false;
+
+
+    tipoResultado.disabled =
+        false;
+
+
+    btnSalvar.style.display =
+        "inline-flex";
+
+
+
+    // ==============================================
+    // NÃO ALTEROU O STATUS
+    // ==============================================
+
+    if (!statusMudou) {
+
+
+        campoEquipe.disabled =
+            true;
+
+
+        campoRetorno.disabled =
+            true;
+
+
+        btnSalvar.disabled =
+            true;
+
+    }
+
+    else {
+
+
+        campoRetorno.disabled =
+            false;
+
+
+        btnSalvar.disabled =
+            false;
+
+    }
+
+
+
+    // ==============================================
+    // EQUIPE
+    // ==============================================
+
+    if (
+        novoStatus ===
+            "encaminhado"
+    ) {
+
+
+        campoEquipeContainer.style.display =
+            "block";
+
+
+        campoEquipe.disabled =
+            false;
+
+    }
+
+    else if (
 
         novoStatus ===
             "concluido"
@@ -727,68 +1019,115 @@ function atualizarCampos() {
         ||
 
         novoStatus ===
-            "nao_executado";
+            "nao_executado"
+
+    ) {
 
 
-    campoEquipeContainer.style.display =
-        mostrarEquipe
-            ? "block"
-            : "none";
+        campoEquipeContainer.style.display =
+            campoEquipe.value
+                ? "block"
+                : "none";
 
 
+        campoEquipe.disabled =
+            true;
 
-    // --------------------------------
-    // Resultado
-    // --------------------------------
+    }
 
-    campoResultado.style.display =
-        (
-            novoStatus ===
-                "concluido"
+    else {
 
-            ||
 
-            novoStatus ===
-                "nao_executado"
-        )
-            ? "block"
-            : "none";
+        campoEquipeContainer.style.display =
+            "none";
+
+    }
 
 
 
-    campoOutro.style.display =
-        "none";
-
-
-    outroRetorno.value =
-        "";
-
+    // ==============================================
+    // CONCLUSÃO
+    // ==============================================
 
     if (
         novoStatus ===
-        "concluido"
+            "concluido"
     ) {
+
+
+        campoResultado.style.display =
+            "block";
+
 
         carregarResultadosExecutados();
 
     }
 
-
-    if (
+    else if (
         novoStatus ===
-        "nao_executado"
+            "nao_executado"
     ) {
+
+
+        campoResultado.style.display =
+            "block";
+
 
         carregarResultadosNaoExecutados();
 
     }
 
+    else {
 
+
+        campoResultado.style.display =
+            "none";
+
+
+        campoOutro.style.display =
+            "none";
+
+
+        tipoResultado.innerHTML = `
+
+            <option value="">
+                Selecione
+            </option>
+
+        `;
+
+    }
+
+
+
+    // ==============================================
+    // MENSAGENS AUTOMÁTICAS DOS STATUS INTERMEDIÁRIOS
+    // ==============================================
 
     if (statusMudou) {
 
-        campoRetorno.value =
-            "";
+
+        if (
+            novoStatus === "em_analise"
+            ||
+            novoStatus === "encaminhado"
+        ) {
+
+
+            campoRetorno.value =
+                respostasStatus[
+                    novoStatus
+                ];
+
+        }
+
+        else {
+
+
+            campoRetorno.value =
+                "";
+
+        }
 
     }
 
@@ -796,10 +1135,9 @@ function atualizarCampos() {
 
 
 
-// ==============================================
-// OPÇÕES CONCLUÍDO
-// ==============================================
-
+// ==================================================
+// RESULTADOS EXECUTADOS
+// ==================================================
 
 function carregarResultadosExecutados() {
 
@@ -836,10 +1174,9 @@ function carregarResultadosExecutados() {
 
 
 
-// ==============================================
-// OPÇÕES NÃO EXECUTADO
-// ==============================================
-
+// ==================================================
+// RESULTADOS NÃO EXECUTADOS
+// ==================================================
 
 function carregarResultadosNaoExecutados() {
 
@@ -880,10 +1217,9 @@ function carregarResultadosNaoExecutados() {
 
 
 
-// ==============================================
-// ALTERAÇÃO STATUS
-// ==============================================
-
+// ==================================================
+// ALTERAÇÃO DO STATUS
+// ==================================================
 
 campoStatus.addEventListener(
 
@@ -895,10 +1231,9 @@ campoStatus.addEventListener(
 
 
 
-// ==============================================
-// RESULTADO AUTOMÁTICO
-// ==============================================
-
+// ==================================================
+// RESPOSTAS AUTOMÁTICAS
+// ==================================================
 
 tipoResultado.addEventListener(
 
@@ -907,32 +1242,15 @@ tipoResultado.addEventListener(
     function () {
 
 
-        const chamadoAtual =
-            chamados.find(
-                x =>
-                    x.id ===
-                    atual
-            );
-
-
-        if (!chamadoAtual) {
-            return;
-        }
-
-
-        const status =
-            campoStatus.value;
-
-
         const valor =
             tipoResultado.value;
 
 
 
         if (
-            valor ===
-            "outro"
+            valor === "outro"
         ) {
+
 
             campoOutro.style.display =
                 "block";
@@ -955,10 +1273,16 @@ tipoResultado.addEventListener(
             "none";
 
 
+        outroRetorno.value =
+            "";
+
+
+
         if (
-            status ===
-            "concluido"
+            campoStatus.value ===
+                "concluido"
         ) {
+
 
             campoRetorno.value =
                 respostasExecutadas[
@@ -968,10 +1292,12 @@ tipoResultado.addEventListener(
         }
 
 
+
         if (
-            status ===
-            "nao_executado"
+            campoStatus.value ===
+                "nao_executado"
         ) {
+
 
             campoRetorno.value =
                 respostasNaoExecutadas[
@@ -986,10 +1312,9 @@ tipoResultado.addEventListener(
 
 
 
-// ==============================================
+// ==================================================
 // OUTRO
-// ==============================================
-
+// ==================================================
 
 outroRetorno.addEventListener(
 
@@ -1000,8 +1325,9 @@ outroRetorno.addEventListener(
 
         if (
             tipoResultado.value ===
-            "outro"
+                "outro"
         ) {
+
 
             campoRetorno.value =
                 outroRetorno.value;
@@ -1014,256 +1340,210 @@ outroRetorno.addEventListener(
 
 
 
-// ==============================================
+// ==================================================
 // ABRIR CHAMADO
-// ==============================================
-
+// ==================================================
 
 window.abrirChamado =
-    function (id) {
+async function (
+    id
+) {
 
 
-        const chamado =
-            chamados.find(
-                x =>
-                    x.id ===
-                    id
-            );
+    const chamado =
+        chamados.find(
+            x =>
+                x.id === id
+        );
 
 
-        if (!chamado) {
-            return;
-        }
+    if (!chamado) {
 
+        return;
 
-        atual =
-            chamado.id;
-
-
-
-        dados.innerHTML = `
-
-            <div class="admin-detail-grid">
-
-
-                <div class="detail-block">
-
-
-                    <p>
-
-                        <strong>
-                            Protocolo:
-                        </strong>
-
-                        ${chamado.protocolo}
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            Solicitante:
-                        </strong>
-
-                        ${chamado.nome}
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            Telefone:
-                        </strong>
-
-                        ${chamado.telefone}
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            E-mail:
-                        </strong>
-
-                        ${chamado.email}
-
-                    </p>
-
-
-                </div>
+    }
 
 
 
-                <div class="detail-block">
+    atual =
+        chamado.id;
 
 
-                    <p>
 
-                        <strong>
-                            Local:
-                        </strong>
-
-                        ${chamado.logradouro},
-                        ${chamado.numero_referencia}
-                        -
-                        ${chamado.bairro}
-
-                    </p>
+    dados.innerHTML = `
 
 
-                    <p>
-
-                        <strong>
-                            Ocorrência:
-                        </strong>
-
-                        ${chamado.tipo_ocorrencia}
-
-                    </p>
+        <div class="admin-detail-grid">
 
 
-                    <p>
-
-                        <strong>
-                            Descrição:
-                        </strong>
-
-                        ${
-                            chamado.descricao
-                            ||
-                            "Sem observações."
-                        }
-
-                    </p>
+            <div class="detail-block">
 
 
-                    <p>
+                <p>
+                    <strong>
+                        Protocolo:
+                    </strong>
 
-                        <strong>
-                            Status atual:
-                        </strong>
-
-                        ${
-                            labels[
-                                chamado.status
-                            ]
-                        }
-
-                    </p>
+                    ${chamado.protocolo}
+                </p>
 
 
-                </div>
+                <p>
+                    <strong>
+                        Solicitante:
+                    </strong>
+
+                    ${chamado.nome}
+                </p>
+
+
+                <p>
+                    <strong>
+                        Telefone:
+                    </strong>
+
+                    ${chamado.telefone}
+                </p>
+
+
+                <p>
+                    <strong>
+                        E-mail:
+                    </strong>
+
+                    ${chamado.email}
+                </p>
 
 
             </div>
 
-        `;
+
+
+            <div class="detail-block">
+
+
+                <p>
+
+                    <strong>
+                        Local:
+                    </strong>
+
+                    ${chamado.logradouro},
+                    ${chamado.numero_referencia}
+                    -
+                    ${chamado.bairro}
+
+                </p>
+
+
+                <p>
+
+                    <strong>
+                        Ocorrência:
+                    </strong>
+
+                    ${chamado.tipo_ocorrencia}
+
+                </p>
+
+
+                <p>
+
+                    <strong>
+                        Descrição:
+                    </strong>
+
+                    ${
+                        chamado.descricao
+                        ||
+                        "Sem observações."
+                    }
+
+                </p>
+
+
+                <p>
+
+                    <strong>
+                        Status atual:
+                    </strong>
+
+                    ${labels[chamado.status]}
+
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+    `;
 
 
 
-        campoEquipe.value =
-            chamado
-                .equipe_responsavel
-            || "";
+    campoEquipe.value =
+        chamado.equipe_responsavel
+        || "";
 
 
-        campoRetorno.value =
-            chamado
-                .retorno_prefeitura
-            || "";
+    campoRetorno.value =
+        chamado.retorno_prefeitura
+        || "";
 
 
-        tipoResultado.innerHTML = `
-
-            <option value="">
-                Selecione
-            </option>
-
-        `;
+    outroRetorno.value =
+        "";
 
 
-        campoOutro.style.display =
-            "none";
+    campoOutro.style.display =
+        "none";
 
 
-        configurarStatus(
-            chamado.status
-        );
+    tipoResultado.innerHTML = `
 
+        <option value="">
+            Selecione
+        </option>
 
-        atualizarCampos();
+    `;
 
 
 
-        // Estados finais ficam somente leitura
+    configurarStatus(
+        chamado.status
+    );
 
-        if (
-            chamado.status ===
-                "concluido"
 
-            ||
-
-            chamado.status ===
-                "nao_executado"
-        ) {
-
-            campoStatus.disabled =
-                true;
-
-            campoEquipe.disabled =
-                true;
-
-            campoRetorno.disabled =
-                true;
-
-            tipoResultado.disabled =
-                true;
-
-            btnSalvar.style.display =
-                "none";
-
-            avisoBloqueado.style.display =
-                "block";
-
-        }
-
-        else {
-
-            campoStatus.disabled =
-                false;
-
-            tipoResultado.disabled =
-                false;
-
-            btnSalvar.style.display =
-                "inline-flex";
-
-        }
+    atualizarCampos();
 
 
 
-        detalhes.style.display =
-            "block";
-
-
-        detalhes.scrollIntoView({
-
-            behavior:
-                "smooth"
-
-        });
-
-    };
+    detalhes.style.display =
+        "block";
 
 
 
-// ==============================================
+    await carregarHistorico(
+        chamado.protocolo
+    );
+
+
+
+    detalhes.scrollIntoView({
+
+        behavior:
+            "smooth"
+
+    });
+
+};
+
+
+
+// ==================================================
 // SALVAR
-// ==============================================
-
+// ==================================================
 
 btnSalvar.addEventListener(
 
@@ -1275,16 +1555,17 @@ btnSalvar.addEventListener(
         const chamadoAtual =
             chamados.find(
                 x =>
-                    x.id ===
-                    atual
+                    x.id === atual
             );
 
 
         if (!chamadoAtual) {
 
+
             alert(
                 "Chamado não encontrado."
             );
+
 
             return;
 
@@ -1302,9 +1583,11 @@ btnSalvar.addEventListener(
             chamadoAtual.status
         ) {
 
+
             alert(
                 "Selecione o próximo status do atendimento."
             );
+
 
             return;
 
@@ -1318,15 +1601,18 @@ btnSalvar.addEventListener(
             ] || [];
 
 
+
         if (
             !permitidos.includes(
                 novoStatus
             )
         ) {
 
+
             alert(
                 "Essa alteração de status não é permitida."
             );
+
 
             return;
 
@@ -1334,11 +1620,12 @@ btnSalvar.addEventListener(
 
 
 
-        // --------------------------------
-        // Equipe obrigatória
-        // --------------------------------
+        // =========================================
+        // EQUIPE
+        // =========================================
 
         if (
+
             novoStatus ===
                 "encaminhado"
 
@@ -1347,13 +1634,17 @@ btnSalvar.addEventListener(
             !campoEquipe
                 .value
                 .trim()
+
         ) {
+
 
             alert(
                 "Informe a equipe responsável."
             );
 
+
             campoEquipe.focus();
+
 
             return;
 
@@ -1361,9 +1652,9 @@ btnSalvar.addEventListener(
 
 
 
-        // --------------------------------
-        // Resultado obrigatório
-        // --------------------------------
+        // =========================================
+        // RESULTADO
+        // =========================================
 
         if (
 
@@ -1383,15 +1674,24 @@ btnSalvar.addEventListener(
 
         ) {
 
+
             alert(
                 "Selecione o resultado do atendimento."
             );
+
+
+            tipoResultado.focus();
+
 
             return;
 
         }
 
 
+
+        // =========================================
+        // OUTRO
+        // =========================================
 
         if (
 
@@ -1406,11 +1706,14 @@ btnSalvar.addEventListener(
 
         ) {
 
+
             alert(
                 "Informe o resultado do atendimento."
             );
 
+
             outroRetorno.focus();
+
 
             return;
 
@@ -1418,15 +1721,24 @@ btnSalvar.addEventListener(
 
 
 
+        // =========================================
+        // RETORNO
+        // =========================================
+
         if (
             !campoRetorno
                 .value
                 .trim()
         ) {
 
+
             alert(
                 "Informe o retorno ao cidadão."
             );
+
+
+            campoRetorno.focus();
+
 
             return;
 
@@ -1454,10 +1766,19 @@ btnSalvar.addEventListener(
 
 
             equipe_responsavel:
+
                 campoEquipe
                     .value
                     .trim()
-                || null,
+
+                ||
+
+                chamadoAtual
+                    .equipe_responsavel
+
+                ||
+
+                null,
 
 
             retorno_prefeitura:
@@ -1472,6 +1793,7 @@ btnSalvar.addEventListener(
 
 
             concluido_em:
+
                 terminal
 
                     ? new Date()
@@ -1505,13 +1827,16 @@ btnSalvar.addEventListener(
 
         if (error) {
 
+
             console.error(
                 error
             );
 
+
             alert(
                 "Erro ao salvar atendimento."
             );
+
 
             return;
 
@@ -1522,6 +1847,7 @@ btnSalvar.addEventListener(
         alert(
             "Atendimento atualizado com sucesso."
         );
+
 
 
         detalhes.style.display =

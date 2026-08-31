@@ -41,6 +41,7 @@
                 🏛️
             </div>
 
+
             <div>
 
                 <div class="brand-title">
@@ -56,21 +57,24 @@
         </div>
 
 
+
         <nav class="nav">
 
             <a href="index.html">
                 Área do cidadão
             </a>
 
+
             <button
                 id="btnSair"
                 type="button"
-                style="display: none;"
+                style="display:none;"
             >
                 Sair
             </button>
 
         </nav>
+
 
     </div>
 
@@ -81,12 +85,15 @@
 <main class="wrap">
 
 
-    <!-- LOGIN -->
+    <!-- =========================================
+         LOGIN
+    ========================================== -->
 
     <section
         id="loginCard"
         class="card login-card"
     >
+
 
         <div class="card-title">
 
@@ -99,6 +106,7 @@
             </h2>
 
         </div>
+
 
 
         <form id="formLogin">
@@ -120,6 +128,7 @@
             </div>
 
 
+
             <div class="field">
 
                 <label for="loginSenha">
@@ -136,10 +145,12 @@
             </div>
 
 
+
             <div
                 id="loginMsg"
                 class="alert"
             ></div>
+
 
 
             <button
@@ -152,15 +163,18 @@
 
         </form>
 
+
     </section>
 
 
 
-    <!-- PAINEL -->
+    <!-- =========================================
+         PAINEL
+    ========================================== -->
 
     <section
         id="painel"
-        style="display: none;"
+        style="display:none;"
     >
 
 
@@ -173,7 +187,8 @@
                 </h1>
 
                 <p>
-                    Gerencie as solicitações recebidas e acompanhe os atendimentos.
+                    Gerencie as solicitações recebidas
+                    e acompanhe os atendimentos.
                 </p>
 
             </div>
@@ -182,7 +197,9 @@
 
 
 
-        <!-- INDICADORES -->
+        <!-- =====================================
+             INDICADORES
+        ====================================== -->
 
         <div class="stats">
 
@@ -203,6 +220,7 @@
             </div>
 
 
+
             <div class="stat">
 
                 <div
@@ -217,6 +235,7 @@
                 </div>
 
             </div>
+
 
 
             <div class="stat">
@@ -235,6 +254,7 @@
             </div>
 
 
+
             <div class="stat">
 
                 <div
@@ -249,6 +269,7 @@
                 </div>
 
             </div>
+
 
 
             <div class="stat">
@@ -271,7 +292,9 @@
 
 
 
-        <!-- CHAMADOS -->
+        <!-- =====================================
+             CHAMADOS
+        ====================================== -->
 
         <section class="card">
 
@@ -331,8 +354,8 @@
 
                 <button
                     id="btnAtualizar"
-                    class="btn btn-light"
                     type="button"
+                    class="btn btn-light"
                 >
                     Atualizar
                 </button>
@@ -346,6 +369,7 @@
 
 
                 <table class="table">
+
 
                     <thead>
 
@@ -377,8 +401,8 @@
 
 
                     <tbody id="tabela">
-
                     </tbody>
+
 
                 </table>
 
@@ -390,12 +414,14 @@
 
 
 
-        <!-- DETALHES -->
+        <!-- =====================================
+             ATENDIMENTO
+        ====================================== -->
 
         <section
             id="detalhes"
             class="card"
-            style="display: none;"
+            style="display:none;"
         >
 
 
@@ -412,31 +438,62 @@
             </div>
 
 
-            <div id="dados">
 
+            <div id="dados">
             </div>
 
 
+
+            <!-- =================================
+                 HISTÓRICO
+            ================================== -->
+
+            <section class="history-section">
+
+
+                <h3>
+                    Histórico do atendimento
+                </h3>
+
+
+                <div
+                    id="historicoAdmin"
+                    class="history-list"
+                >
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================
+                 AVISO
+            ================================== -->
 
             <div
                 id="avisoBloqueado"
                 class="alert info"
-                style="display: none;"
+                style="display:none;"
             >
 
-                As informações deste estágio já foram registradas e não podem ser alteradas.
-                Para continuar o atendimento, avance para o próximo status.
+                As informações deste estágio já foram
+                registradas e não podem ser alteradas.
+                Para continuar o atendimento, avance
+                para o próximo status.
 
             </div>
 
 
 
-            <!-- STATUS -->
+            <!-- =================================
+                 STATUS
+            ================================== -->
 
             <div
                 id="campoStatusContainer"
                 class="field"
-                style="margin-top: 24px;"
+                style="margin-top:24px;"
             >
 
                 <label for="status">
@@ -446,38 +503,47 @@
 
                 <select id="status">
 
+
                     <option value="aberto">
                         Aberto
                     </option>
+
 
                     <option value="em_analise">
                         Em análise
                     </option>
 
+
                     <option value="encaminhado">
                         Encaminhado para equipe
                     </option>
+
 
                     <option value="concluido">
                         Concluído
                     </option>
 
+
                     <option value="nao_executado">
                         Não executado
                     </option>
 
+
                 </select>
+
 
             </div>
 
 
 
-            <!-- EQUIPE -->
+            <!-- =================================
+                 EQUIPE
+            ================================== -->
 
             <div
                 id="campoEquipe"
                 class="field"
-                style="display: none;"
+                style="display:none;"
             >
 
                 <label for="equipe">
@@ -491,16 +557,19 @@
                     placeholder="Ex.: Equipe 01"
                 >
 
+
             </div>
 
 
 
-            <!-- RESULTADO FINAL -->
+            <!-- =================================
+                 RESULTADO
+            ================================== -->
 
             <div
                 id="campoResultado"
                 class="field"
-                style="display: none;"
+                style="display:none;"
             >
 
                 <label for="tipoResultado">
@@ -511,21 +580,24 @@
                 <select id="tipoResultado">
 
                     <option value="">
-                        Selecione o resultado
+                        Selecione
                     </option>
 
                 </select>
+
 
             </div>
 
 
 
-            <!-- OUTRO -->
+            <!-- =================================
+                 OUTRO
+            ================================== -->
 
             <div
                 id="campoOutro"
                 class="field"
-                style="display: none;"
+                style="display:none;"
             >
 
                 <label for="outroRetorno">
@@ -538,11 +610,14 @@
                     placeholder="Descreva o serviço realizado ou o motivo da não execução."
                 ></textarea>
 
+
             </div>
 
 
 
-            <!-- RETORNO -->
+            <!-- =================================
+                 RETORNO
+            ================================== -->
 
             <div
                 id="campoRetornoContainer"
@@ -558,6 +633,7 @@
                     id="retorno"
                     placeholder="Informe o andamento do atendimento."
                 ></textarea>
+
 
             </div>
 
@@ -579,6 +655,14 @@
 
 
 </main>
+
+
+
+<footer class="footer">
+
+    IluminaPG • Gestão de iluminação pública
+
+</footer>
 
 
 
